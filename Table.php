@@ -281,6 +281,10 @@ abstract class EtuDev_Data_Table extends Zend_Db_Table_Abstract  {
 		return $q->fetchAll(Zend_Db::FETCH_COLUMN);
 	}
 
+	//para evitar compatibilidad con versiones antiguas de Zend Framework
+	const SELECT_WITH_FROM_PART    = true;
+	const SELECT_WITHOUT_FROM_PART = false;
+
 	/**
 	 * por defecto QUITAMOS EL INTEGRITY CHECK
 	 *
@@ -288,9 +292,12 @@ abstract class EtuDev_Data_Table extends Zend_Db_Table_Abstract  {
 	 * @return Zend_Db_Table_Select
 	 */
 	public function select($withFromPart = self::SELECT_WITHOUT_FROM_PART) {
-		$s = parent::select($withFromPart);
+		$s = parent::select();
 		if ($s) {
 			$s->setIntegrityCheck(false);
+		}
+		if($withFromPart){
+			$s->from($this->info(self::NAME), Zend_Db_Table_Select::SQL_WILDCARD, $this->info(self::SCHEMA));
 		}
 		return $s;
 	}
