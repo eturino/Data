@@ -1,7 +1,7 @@
 <?php
 
 /**
- * originally developed by Sergio Gago (sergiogh)
+ * originally developed by Sergio Gago (sergiogh) modified by Eduardo Turiño
  *
  * This class attaches its inherited objects the notification methods listed below.
  *
@@ -17,6 +17,17 @@
  * to pass the table object, the event, and also the row affected
  */
 class EtuDev_Data_ObservableTable extends Zend_Db_Table_Abstract {
+
+	const LOG_CLASS = 'EtuDev_Data_Log';
+
+	static public function log($caller, $message, $level, $module = NULL) {
+		$logger = static::LOG_CLASS;
+		if($logger){
+			return $logger::log($caller, $message, $level, $module);
+		}
+
+		return false;
+	}
 
 	/**
 	 * @var array Array of observers
@@ -92,7 +103,7 @@ class EtuDev_Data_ObservableTable extends Zend_Db_Table_Abstract {
 				try {
 					call_user_func(array($observer, 'observe'), $event, $data);
 				} catch (Exception $e) {
-					EtuDev_Data_Log::log('ObservableRow/notifyObserver', 'Fallo al notificar: ' . $event . ' de: ' . $this->_name . ' Error: ' . $e->getMessage(), Zend_Log::ERR);
+					static::log('ObservableRow/notifyObserver', 'Fallo al notificar: ' . $event . ' de: ' . $this->_name . ' Error: ' . $e->getMessage(), Zend_Log::ERR);
 				}
 			}
 		}
