@@ -1,6 +1,6 @@
 <?php
 
-class EtuDev_Data_Row extends Zend_Db_Table_Row_Abstract {
+class EtuDev_Data_Row extends EtuDev_Data_ObservableRow {
 
 	/**
 	 * to be extended, returns an array with the default data for a new entity

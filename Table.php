@@ -2,7 +2,7 @@
 /**
  * @method EtuDev_Data_Rowset fetchAll($where = null, $order = null, $count = null, $offset = null)
  */
-abstract class EtuDev_Data_Table extends Zend_Db_Table_Abstract  {
+abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 
 	const ZDB_ADAPTER_KEY = '';
 
@@ -289,6 +289,7 @@ abstract class EtuDev_Data_Table extends Zend_Db_Table_Abstract  {
 	 * por defecto QUITAMOS EL INTEGRITY CHECK
 	 *
 	 * @param bool $withFromPart
+	 *
 	 * @return Zend_Db_Table_Select
 	 */
 	public function select($withFromPart = self::SELECT_WITHOUT_FROM_PART) {
@@ -296,7 +297,7 @@ abstract class EtuDev_Data_Table extends Zend_Db_Table_Abstract  {
 		if ($s) {
 			$s->setIntegrityCheck(false);
 		}
-		if($withFromPart){
+		if ($withFromPart) {
 			$s->from($this->info(self::NAME), Zend_Db_Table_Select::SQL_WILDCARD, $this->info(self::SCHEMA));
 		}
 		return $s;
