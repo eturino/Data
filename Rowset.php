@@ -29,14 +29,14 @@ class EtuDev_Data_Rowset extends Zend_Db_Table_Rowset {
 	}
 
 	public function firstRow() {
-		if($this->_data){
+		if ($this->_data) {
 			return $this->getRow($this->firstKey);
 		}
 		return null;
 	}
 
 	public function endRow() {
-		if($this->_data){
+		if ($this->_data) {
 			return $this->getRow($this->endKey);
 		}
 

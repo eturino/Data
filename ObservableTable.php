@@ -22,7 +22,7 @@ class EtuDev_Data_ObservableTable extends Zend_Db_Table_Abstract {
 
 	static public function log($caller, $message, $level, $module = NULL) {
 		$logger = static::LOG_CLASS;
-		if($logger){
+		if ($logger) {
 			return $logger::log($caller, $message, $level, $module);
 		}
 

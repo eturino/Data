@@ -11,7 +11,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 
 	static public function log($caller, $message, $level, $module = NULL) {
 		$logger = static::LOG_CLASS;
-		if($logger){
+		if ($logger) {
 			return $logger::log($caller, $message, $level, $module);
 		}
 
@@ -432,9 +432,9 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 			throw new Zend_Db_Table_Row_Exception("Specified column \"$key\" is not in the row");
 		}
 
-		$this->_data[$key]           = $value;
+		$this->_data[$key] = $value;
 		$this->addModifiedKeyIfNeeded($key);
-		$this->_aliases[$atkey]      = $key; //por si fuera necesario almacenarlo (mejor directamente que mirar a ver si ya está)
+		$this->_aliases[$atkey] = $key; //por si fuera necesario almacenarlo (mejor directamente que mirar a ver si ya está)
 
 		return true;
 	}
@@ -445,8 +445,8 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 			require_once 'Zend/Db/Table/Row/Exception.php';
 			throw new Zend_Db_Table_Row_Exception("Specified column \"$key\" is not in the row");
 		}
-		$this->_data[$key]           = $value;
-		$this->_aliases[$key]        = $key;
+		$this->_data[$key]    = $value;
+		$this->_aliases[$key] = $key;
 		$this->addModifiedKeyIfNeeded($key);
 
 		return true;
@@ -485,24 +485,24 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 	 * to the database for a Row that has been de-serialized.
 	 *
 	 * @param Zend_Db_Table_Abstract $table
+	 *
 	 * @return boolean
 	 * @throws Zend_Db_Table_Row_Exception
 	 */
-	public function setTable(Zend_Db_Table_Abstract $table = null)
-	{
+	public function setTable(Zend_Db_Table_Abstract $table = null) {
 		if ($table == null) {
-			$this->_table = null;
+			$this->_table     = null;
 			$this->_connected = false;
 			return false;
 		}
 
 		$tableClass = get_class($table);
-		if (! $table instanceof $this->_tableClass) {
+		if (!$table instanceof $this->_tableClass) {
 			require_once 'Zend/Db/Table/Row/Exception.php';
 			throw new Zend_Db_Table_Row_Exception("The specified Table is of class $tableClass, expecting class to be instance of $this->_tableClass");
 		}
 
-		$this->_table = $table;
+		$this->_table      = $table;
 		$this->_tableClass = $tableClass;
 
 		$info = $this->_table->info();
@@ -512,7 +512,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 			throw new Zend_Db_Table_Row_Exception('The specified Table does not have the same columns as the Row');
 		}
 
-		if (! array_intersect((array) $this->_primary, $info['primary']) == (array) $this->_primary) {
+		if (!array_intersect((array) $this->_primary, $info['primary']) == (array) $this->_primary) {
 
 			require_once 'Zend/Db/Table/Row/Exception.php';
 			throw new Zend_Db_Table_Row_Exception("The specified Table '$tableClass' does not have the same primary key as the Row");
@@ -521,8 +521,6 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 		$this->_connected = true;
 		return true;
 	}
-
-
 
 
 	/**

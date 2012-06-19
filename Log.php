@@ -63,7 +63,7 @@ class EtuDev_Data_Log {
 	}
 
 	static public function logException(Exception $exception, $caller = null, $module = null) {
-		static::log($caller ? : 'EXCEPTION', $exception->getMessage() . " \n trace: " . $exception->getTraceAsString(), self::ERR, $module);
+		static::log($caller ?: 'EXCEPTION', $exception->getMessage() . " \n trace: " . $exception->getTraceAsString(), self::ERR, $module);
 	}
 
 	/**
