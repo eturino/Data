@@ -5,7 +5,10 @@
  *
  * @author sergiogh
  */
-class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
+class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements EtuDev_Interfaces_ToArrayAble {
+
+	const LEVEL_ALL              = '';
+	const TO_ARRAY_LEVEL_DEFAULT = self::LEVEL_ALL;
 
 	const LOG_CLASS = 'EtuDev_Data_Log';
 
@@ -621,28 +624,60 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract {
 	 *
 	 * @return array
 	 */
-	public function toArray($level = null, $toArrayPseudoArrays = true) {
+	public function toArray($level = null, $toArrayPseudoArrays = false) {
 		if (is_null($level)) {
-			$level = EtuDev_PseudoArray_Object::TO_ARRAY_LEVEL_DEFAULT ?: EtuDev_PseudoArray_Object::LEVEL_ALL;
+			$level = static::TO_ARRAY_LEVEL_DEFAULT ? : self::LEVEL_ALL;
 		}
 
-		if ($level == EtuDev_PseudoArray_Object::LEVEL_ALL) {
+		if ($level == self::LEVEL_ALL) {
 			$reals = array_unique(array_values($this->_aliases));
 			if (!$reals) {
 				return array();
 			}
-		} else { //si filtramos por level, tenemos que dar solo los del level? (en principio si)
-			$reals = @$this->_properties_by_level[$level];
+		} else { //si filtramos por level, tenemos que dar solo los del level? (en principio si) => si no existe ese level, entonces las del level all (por que? por si estamos haciendo un toArray() y este es un nivel encadenado, si no está definido el nivel es como pedir todos!!!)
+			$reals = @$this->_properties_by_level[$level] ?: (array_key_exists($level, $this->_properties_by_level) ? array() : @$this->_properties_by_level[self::LEVEL_ALL]);
 		}
 		if (!$reals) {
 			return array();
 		}
 
-		$st = array_fill_keys($reals, null);
-		if ($this->_data) {
-			$st = array_merge($st, $this->_data);
+		$st = array();
+		foreach($reals as $r){
+			$st[$r] = @$this->_data[$r];
 		}
-		return $st;
+
+		//getters
+		foreach ($this->_getters as $k => $getter) {
+			if (array_key_exists($k, $st)) {
+				$st[$k] = $this->_getByGetter($getter);
+			}
+		}
+
+		if ($toArrayPseudoArrays) {
+			$o = array();
+			foreach ($st as $k => $v) {
+				/** @var $v EtuDev_PseudoArray_Object */
+				if ($v instanceof EtuDev_PseudoArray_Object) {
+					$o[$k] = $v->toArray($level, $toArrayPseudoArrays);
+				} elseif (is_array($v)) {
+					$a = array();
+					foreach ($v as $vk => $vv) {
+						/** @var $vv EtuDev_PseudoArray_Object */
+						if ($vv instanceof EtuDev_PseudoArray_Object) {
+							$a[$vk] = $vv->toArray($level, $toArrayPseudoArrays);
+						} else {
+							$a[$vk] = $vv;
+						}
+					}
+					$o[$k] = $a;
+				} else {
+					$o[$k] = $v;
+				}
+			}
+			return $o;
+		} else {
+			return $st;
+		}
 	}
 
 }
