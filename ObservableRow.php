@@ -465,7 +465,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
 	protected function addModifiedKeyIfNeeded($key) {
 		if ($this->_cleanData) {
-			if (array_key_exists($key, $this->_cleanData)) { //solo si existe
+			if (array_key_exists($key, $this->_cleanData) && $this->_data[$key] != $this->_cleanData[$key]) { //solo si existe
 				$this->_modifiedFields[$key] = true;
 			}
 		} elseif ($this->hasRowColumn($key)) {
