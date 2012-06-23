@@ -5,7 +5,7 @@
  *
  * @author sergiogh
  */
-class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements EtuDev_Interfaces_ToArrayAble {
+class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements EtuDev_Interfaces_ToArrayAbleFull {
 
 	const LEVEL_ALL              = '';
 	const TO_ARRAY_LEVEL_DEFAULT = self::LEVEL_ALL;
@@ -262,9 +262,9 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 			try {
 				if (is_array($originalData) && $originalData) {
 					//los que no tienen setter se meten directamente
-					$notSetter   = array_diff_key($originalData, $this->_setters);
+					$notSetter = array_diff_key($originalData, $this->_setters);
 					//modified keys
-					foreach(array_keys($notSetter) as $nk){
+					foreach (array_keys($notSetter) as $nk) {
 						$this->addModifiedKeyIfNeeded($nk);
 					}
 					$this->_data = array_merge($this->_data, $notSetter);
@@ -386,7 +386,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
 
 	final public function getDefinedAlias($key) {
-		return @$this->_aliases[$key] ?: $key;
+		return @$this->_aliases[$key] ? : $key;
 	}
 
 
@@ -433,7 +433,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 			return $this->$setter($value);
 		}
 
-		$key = @$this->_transformColumn($atkey) ?: $atkey; //por si no está definido ya
+		$key = @$this->_transformColumn($atkey) ? : $atkey; //por si no está definido ya
 		if ($this->_checkColumnExistsBeforeSet && !array_key_exists($key, $this->_data)) {
 			require_once 'Zend/Db/Table/Row/Exception.php';
 			throw new Zend_Db_Table_Row_Exception("Specified column \"$key\" is not in the row");
@@ -619,6 +619,12 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		}
 	}
 
+	/**
+	 * @return array
+	 */
+	public function toArrayFull() {
+		return $this->toArray(null, true);
+	}
 
 	/**
 	 * returns an actual array with the same elements the iterator can access
@@ -639,14 +645,14 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 				return array();
 			}
 		} else { //si filtramos por level, tenemos que dar solo los del level? (en principio si) => si no existe ese level, entonces las del level all (por que? por si estamos haciendo un toArray() y este es un nivel encadenado, si no está definido el nivel es como pedir todos!!!)
-			$reals = @$this->_properties_by_level[$level] ?: (array_key_exists($level, $this->_properties_by_level) ? array() : @$this->_properties_by_level[self::LEVEL_ALL]);
+			$reals = @$this->_properties_by_level[$level] ? : (array_key_exists($level, $this->_properties_by_level) ? array() : @$this->_properties_by_level[self::LEVEL_ALL]);
 		}
 		if (!$reals) {
 			return array();
 		}
 
 		$st = array();
-		foreach($reals as $r){
+		foreach ($reals as $r) {
 			$st[$r] = @$this->_data[$r];
 		}
 
