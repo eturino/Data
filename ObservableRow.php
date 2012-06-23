@@ -624,11 +624,11 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 * returns an actual array with the same elements the iterator can access
 	 *
 	 * @param string $level filter with the given level
-	 * @param bool   $toArrayPseudoArrays if true the pseudoarrays
+	 * @param bool   $toArrayPseudoArraysAndRows if true the pseudoarrays
 	 *
 	 * @return array
 	 */
-	public function toArray($level = null, $toArrayPseudoArrays = false) {
+	public function toArray($level = null, $toArrayPseudoArraysAndRows = false) {
 		if (is_null($level)) {
 			$level = static::TO_ARRAY_LEVEL_DEFAULT ? : self::LEVEL_ALL;
 		}
@@ -657,18 +657,18 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 			}
 		}
 
-		if ($toArrayPseudoArrays) {
+		if ($toArrayPseudoArraysAndRows) {
 			$o = array();
 			foreach ($st as $k => $v) {
 				/** @var $v EtuDev_PseudoArray_Object */
-				if ($v instanceof EtuDev_PseudoArray_Object) {
-					$o[$k] = $v->toArray($level, $toArrayPseudoArrays);
+				if ($v instanceof EtuDev_PseudoArray_Object || $v instanceof EtuDev_Data_ObservableRow) {
+					$o[$k] = $v->toArray($level, $toArrayPseudoArraysAndRows);
 				} elseif (is_array($v)) {
 					$a = array();
 					foreach ($v as $vk => $vv) {
 						/** @var $vv EtuDev_PseudoArray_Object */
-						if ($vv instanceof EtuDev_PseudoArray_Object) {
-							$a[$vk] = $vv->toArray($level, $toArrayPseudoArrays);
+						if ($vv instanceof EtuDev_PseudoArray_Object || $vv instanceof EtuDev_Data_ObservableRow) {
+							$a[$vk] = $vv->toArray($level, $toArrayPseudoArraysAndRows);
 						} else {
 							$a[$vk] = $vv;
 						}
