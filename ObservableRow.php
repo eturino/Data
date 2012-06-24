@@ -133,6 +133,10 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		parent::init();
 		$this->_loadClassInfo();
 		$this->_readyBeforeUse();
+
+		if (!$this->_data) {
+			$this->_data = array_combine($this->getRowColumns(), array_fill(0, count($this->getRowColumns()), null));
+		}
 	}
 
 	protected function _loadClassInfo() {
