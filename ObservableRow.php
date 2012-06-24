@@ -586,6 +586,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		} else {
 			$this->_data[$key]    = $value;
 			$this->_aliases[$key] = $key;
+			$this->addModifiedKeyIfNeeded($key);
 		}
 	}
 
