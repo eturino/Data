@@ -30,8 +30,8 @@ class EtuDev_Data_Row extends EtuDev_Data_ObservableRow {
 		$this->calculateBeforeModify();
 	}
 
-	protected function calculateBeforeModify(){
-		foreach($this->_getters as $k => $gt){
+	protected function calculateBeforeModify() {
+		foreach ($this->_getters as $k => $gt) {
 			$this->_setDirect($k, $this->$gt());
 			$this->addModifiedKeyIfNeeded($k);
 		}
