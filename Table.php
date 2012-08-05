@@ -14,6 +14,10 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 
 	static private $_instances = array();
 
+	/**
+	 * @static
+	 * @return EtuDev_Data_Table
+	 */
 	static public function getInstance() {
 		$c = get_called_class();
 		if (!@self::$_instances[$c]) {
