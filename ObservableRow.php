@@ -253,6 +253,17 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		}
 	}
 
+	/**
+	 * @param array $originalData
+	 *
+	 * @uses setValuesFromOriginalData()
+	 *
+	 * @return EtuDev_Data_ObservableRow
+	 */
+	public function setFromArray(array $originalData) {
+		$this->setValuesFromOriginalData($originalData);
+		return $this;
+	}
 
 	/**
 	 * foreach element in the originalData, we call $this->$k = $v
