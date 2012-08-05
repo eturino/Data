@@ -81,6 +81,18 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		return @$infos[$columnName]['type'] == 'bool';
 	}
 
+	/**
+	 * @param $object
+	 *
+	 * @return bool
+	 */
+	public function isRow($object) {
+		if (!$object) {
+			return false;
+		}
+
+		return ($object instanceof $this->_rowClass);
+	}
 
 	public function getValidColumns() {
 		return $this->_getCols();
