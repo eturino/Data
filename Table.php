@@ -12,6 +12,17 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		static::$tableSchema = $v;
 	}
 
+	static private $_instances = array();
+
+	static public function getInstance() {
+		$c = get_called_class();
+		if (!@self::$_instances[$c]) {
+			self::$_instances[$c] = new static();
+		}
+
+		return self::$_instances[$c];
+	}
+
 	public function __construct($config = array()) {
 		if (static::ZDB_ADAPTER_KEY && !@$config[static::ADAPTER]) {
 			$adapter = Zend_Registry::isRegistered(static::ZDB_ADAPTER_KEY) ? Zend_Registry::get(static::ZDB_ADAPTER_KEY) : null;
