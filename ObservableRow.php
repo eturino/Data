@@ -649,11 +649,11 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 * returns an actual array with the same elements the iterator can access
 	 *
 	 * @param string $level filter with the given level
-	 * @param bool   $toArrayPseudoArraysAndRows if true the pseudoarrays
+	 * @param bool   $toArrayToArrayables if true the pseudoarrays
 	 *
 	 * @return array
 	 */
-	public function toArray($level = null, $toArrayPseudoArraysAndRows = false) {
+	public function toArray($level = null, $toArrayToArrayables = false) {
 		if (is_null($level)) {
 			$level = static::TO_ARRAY_LEVEL_DEFAULT ? : self::LEVEL_ALL;
 		}
@@ -682,18 +682,24 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 			}
 		}
 
-		if ($toArrayPseudoArraysAndRows) {
+		if ($toArrayToArrayables) {
 			$o = array();
 			foreach ($st as $k => $v) {
-				/** @var $v EtuDev_PseudoArray_Object */
-				if ($v instanceof EtuDev_PseudoArray_Object || $v instanceof EtuDev_Data_ObservableRow) {
-					$o[$k] = $v->toArray($level, $toArrayPseudoArraysAndRows);
+				if ($v instanceof EtuDev_Interfaces_ToArrayAbleFull) {
+					/** @var $v EtuDev_Interfaces_ToArrayAbleFull */
+					$o[$k] = $v->toArray($level, $toArrayToArrayables);
+				} elseif ($v instanceof EtuDev_Interfaces_ToArrayAble) {
+					/** @var $v EtuDev_Interfaces_ToArrayAble */
+					$o[$k] = $v->toArray();
 				} elseif (is_array($v)) {
 					$a = array();
 					foreach ($v as $vk => $vv) {
-						/** @var $vv EtuDev_PseudoArray_Object */
-						if ($vv instanceof EtuDev_PseudoArray_Object || $vv instanceof EtuDev_Data_ObservableRow) {
-							$a[$vk] = $vv->toArray($level, $toArrayPseudoArraysAndRows);
+						if ($v instanceof EtuDev_Interfaces_ToArrayAbleFull) {
+							/** @var $vv EtuDev_Interfaces_ToArrayAbleFull */
+							$a[$vk] = $vv->toArray($level, $toArrayToArrayables);
+						} elseif ($vv instanceof EtuDev_Interfaces_ToArrayAble) {
+							/** @var $vv EtuDev_Interfaces_ToArrayAble */
+							$a[$vk] = $vv->toArray();
 						} else {
 							$a[$vk] = $vv;
 						}
