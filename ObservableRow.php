@@ -255,6 +255,12 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		return $this;
 	}
 
+
+	public function setValuesFromOriginalDataIgnoreChecks($originalData) {
+		return $this->doSetValuesFromOriginalData($originalData, true);
+	}
+
+
 	/**
 	 * foreach element in the originalData, we call $this->$k = $v
 	 *
@@ -262,16 +268,33 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 *
 	 * @uses __set()
 	 * @throws Exception
+	 * @return bool
 	 */
 	public function setValuesFromOriginalData($originalData) {
+		return $this->doSetValuesFromOriginalData($originalData, false);
+	}
+
+	/**
+	 * foreach element in the originalData, we call $this->$k = $v
+	 *
+	 * @param array|Traversable $originalData
+	 *
+	 * @uses __set()
+	 * @throws Exception
+	 * @return bool
+	 */
+	protected function doSetValuesFromOriginalData($originalData, $ignoreChecks = false) {
 
 		if ($originalData) {
 			try {
+
 				if ($originalData instanceof EtuDev_Interfaces_ToArrayAble) {
 					$originalData = $originalData->toArray();
 				}
 
 				if (is_array($originalData) && $originalData) {
+					//check aliases
+
 					if ($this->_aliases_different) {
 						$a = array();
 						foreach ($originalData as $k => $v) {
@@ -280,20 +303,26 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 						$originalData = $a;
 					}
 
-					if (!$this->_allow_not_defined) {
+					if (!$ignoreChecks && !$this->_allow_not_defined) {
 						$originalData = array_intersect_key($originalData, $this->_aliases);
 					}
 
+
 					//los que no tienen setter se meten directamente
 					$notSetter = array_diff_key($originalData, $this->_setters);
-					//modified keys
-					foreach (array_keys($notSetter) as $nk) {
-						$this->addModifiedKeyIfNeeded($nk);
+
+					if ($notSetter) {
+						$this->_data = array_merge($this->_data, $notSetter);
+
+						//aseguramos los nuevos alias
+						$newkeys = array_keys($this->_data);
+
+						if ($this->_aliases) {
+							$this->_aliases = array_merge(array_combine($newkeys, $newkeys), (array) $this->_aliases);
+						} else {
+							$this->_aliases = array_combine($newkeys, $newkeys);
+						}
 					}
-					$this->_data = array_merge($this->_data, $notSetter);
-					//aseguramos los nuevos alias
-					$newkeys        = array_keys($this->_data);
-					$this->_aliases = array_merge(array_combine($newkeys, $newkeys), (array) $this->_aliases);
 
 					//si hay más, van por setter (no es necesario añadir alias, pues si tienen setter es que están definidos en la clase)
 					if (count($notSetter) < count($originalData)) {
@@ -315,9 +344,11 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 				throw new Exception("non Traversable data (nor trav. object nor array)");
 			}
 
+			return true;
 		}
-	}
 
+		return false;
+	}
 
 	/**
 	 * foreach element in the originalData, we call $this->$k = $v, ONLY if it is not already set
