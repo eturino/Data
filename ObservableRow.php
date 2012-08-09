@@ -116,10 +116,10 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	protected $_checkColumnExistsBeforeGet = false;
 
 	/**
-	 * if false we wont check if the column already exists!!!
+	 * if false we check if the column already exists!!!
 	 * @var bool
 	 */
-	protected $_checkColumnExistsBeforeSet = false;
+	protected $_allow_not_defined = true;
 
 
 	/**
@@ -140,13 +140,16 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	}
 
 	protected function _loadClassInfo() {
-		$info                       = EtuDev_PseudoArray_Factory::getInfo(get_called_class());
-		$keyscont                   = array_keys($this->_data);
+		$info     = EtuDev_PseudoArray_Factory::getInfo(get_called_class());
+		$keyscont = array_keys($this->_data);
+
 		$this->_aliases             = $keyscont ? array_merge(array_combine($keyscont, $keyscont), (array) $info['aliases']) : (array) $info['aliases'];
+		$this->_aliases_different   = $info['aliases_different'];
 		$this->_getters             = $info['getters'];
 		$this->_setters             = $info['setters'];
 		$this->_properties_by_level = $info['levels'];
 		$this->_ignore_to_array     = $info['ignore_to_array'];
+
 		$this->getRowColumns();
 	}
 
@@ -208,7 +211,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	protected $_getters = array();
 	protected $_setters = array();
 	protected $_aliases = array();
-	private $_properties_level_flag = EtuDev_PseudoArray_Object::PROPERTIES_LEVEL_ALL;
+	protected $_aliases_different = array();
 
 	/** @var array precalculated properties */
 	protected $_properties_by_level = array();
@@ -222,28 +225,6 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		return $this->_data;
 	}
 
-
-	/**
-	 * check if this EtuDev_PseudoArray_Object will only accept properties defined in the DocBlock
-	 * @return int
-	 */
-	public function _getPropertiesLevelFlag() {
-		return (array) $this->_properties_level_flag;
-	}
-
-	/**
-	 * sets the flag that says if this EtuDev_PseudoArray_Object will accept only properties defined in the DocBlock
-	 *
-	 * @param int $level_flag
-	 *
-	 * @return EtuDev_PseudoArray_Object
-	 */
-	public function _setPropertiesLevelFlag($level_flag) {
-		$this->_properties_level_flag = $level_flag;
-		return $this;
-	}
-
-
 	/**
 	 * replace the data content with this one, WARNING: use ONLY when it is clear that we can do this
 	 *
@@ -251,6 +232,10 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 *
 	 */
 	public function replaceWholeContainer(array $originalData) {
+		if (!$this->_allow_not_defined) {
+			$originalData = array_intersect_key($originalData, $this->_aliases);
+		}
+
 		$this->_data = $originalData;
 		if ($originalData) {
 			$newkeys        = array_keys($this->_data);
@@ -282,7 +267,23 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
 		if ($originalData) {
 			try {
+				if ($originalData instanceof EtuDev_Interfaces_ToArrayAble) {
+					$originalData = $originalData->toArray();
+				}
+
 				if (is_array($originalData) && $originalData) {
+					if ($this->_aliases_different) {
+						$a = array();
+						foreach ($originalData as $k => $v) {
+							$a[@$this->_aliases[$k] ? : $k] = $v;
+						}
+						$originalData = $a;
+					}
+
+					if (!$this->_allow_not_defined) {
+						$originalData = array_intersect_key($originalData, $this->_aliases);
+					}
+
 					//los que no tienen setter se meten directamente
 					$notSetter = array_diff_key($originalData, $this->_setters);
 					//modified keys
@@ -456,7 +457,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		}
 
 		$key = @$this->_transformColumn($atkey) ? : $atkey; //por si no está definido ya
-		if ($this->_checkColumnExistsBeforeSet && !array_key_exists($key, $this->_data)) {
+		if (!$this->_allow_not_defined && !array_key_exists($key, $this->_data)) {
 			require_once 'Zend/Db/Table/Row/Exception.php';
 			throw new Zend_Db_Table_Row_Exception("Specified column \"$key\" is not in the row");
 		}
@@ -470,7 +471,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
 
 	final protected function _setDirectByDynamic($key, $value) {
-		if ($this->_checkColumnExistsBeforeSet && !array_key_exists($key, $this->_data)) {
+		if (!$this->_allow_not_defined && !array_key_exists($key, $this->_data)) {
 			require_once 'Zend/Db/Table/Row/Exception.php';
 			throw new Zend_Db_Table_Row_Exception("Specified column \"$key\" is not in the row");
 		}
