@@ -146,7 +146,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		$this->_getters             = $info['getters'];
 		$this->_setters             = $info['setters'];
 		$this->_properties_by_level = $info['levels'];
-
+		$this->_ignore_to_array     = $info['ignore_to_array'];
 		$this->getRowColumns();
 	}
 
@@ -212,6 +212,11 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
 	/** @var array precalculated properties */
 	protected $_properties_by_level = array();
+
+	/**
+	 * @var array
+	 */
+	protected $_ignore_to_array = array();
 
 	final public function _getContainer() {
 		return $this->_data;
@@ -674,10 +679,11 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		foreach ($reals as $r) {
 			$st[$r] = @$this->_data[$r];
 		}
+		$st = array_diff_key($st, array_flip($this->_ignore_to_array));
 
 		//getters
 		foreach ($this->_getters as $k => $getter) {
-			if (array_key_exists($k, $st)) {
+			if (array_key_exists($k, $st) && !in_array($k, $this->_ignore_to_array)) {
 				$st[$k] = $this->_getByGetter($getter);
 			}
 		}
