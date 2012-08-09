@@ -2,12 +2,12 @@
 
 class EtuDev_Data_PseudoArray extends EtuDev_PseudoArray_Object implements EtuDev_Data_HighlightDataObject {
 
-	public function __construct($originalData = null, $propertiesFlag = null) {
+	public function __construct($originalData = null) {
 		if (is_array($originalData) && count($originalData) == 4 && isset($originalData['table']) && isset($originalData['data']) && isset($originalData['stored'])) {
 			// treated like a Zend Db Row
 			$originalData = $originalData['data'];
 		}
-		parent::__construct($originalData, $propertiesFlag);
+		parent::__construct($originalData);
 	}
 
 	/**
