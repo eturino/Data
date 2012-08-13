@@ -314,6 +314,11 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 					if ($notSetter) {
 						$this->_data = array_merge($this->_data, $notSetter);
 
+						//modified keys
+						foreach (array_keys($notSetter) as $nk) {
+							$this->addModifiedKeyIfNeeded($nk);
+						}
+
 						//aseguramos los nuevos alias
 						$newkeys = array_keys($this->_data);
 
