@@ -61,7 +61,9 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	 * @abstract
 	 * @return array
 	 */
-	abstract static public function loadColumnsInfoArray();
+	static public function loadColumnsInfoArray() {
+		//TO BE EXTENDED
+	}
 
 	/**
 	 * @static
