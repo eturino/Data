@@ -1,6 +1,6 @@
 <?php
 
-trait EtuDev_Data_Tratis_TableWithId {
+trait EtuDev_Data_Traits_TableWithId {
 
 	public function getById($id) {
 		return $this->getRowById($id);
