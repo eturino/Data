@@ -331,4 +331,17 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		}
 		return $s;
 	}
+
+	public function save($entity) {
+		if ($entity instanceof Zend_Db_Table_Row_Abstract) {
+			return $entity->save();
+		}
+
+		if (is_array($entity) || ($entity instanceof EtuDev_Interfaces_ToArrayAble)) {
+			$row = $this->createRow($entity);
+			return $row->save();
+		}
+
+		return false;
+	}
 }
