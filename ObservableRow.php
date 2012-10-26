@@ -360,15 +360,14 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	}
 
 	/**
-	 * foreach element in the originalData, we call $this->$k = $v, ONLY if it is not already set
+	 * foreach element in the originalData, we call $this->$k = $v, ONLY if it is not already set (we treat NULL as unset)
 	 *
 	 * @param array|Traversable $originalData
-	 * @param bool              $treat_null_as_unset
 	 *
 	 * @uses _set()
 	 * @throws Exception
 	 */
-	public function setValuesOnlyIfNotSetted($originalData, $treat_null_as_unset = false) {
+	public function setValuesOnlyIfNotSetted($originalData) {
 		if ($originalData) {
 			try {
 				if (is_array($originalData) && $originalData) {
@@ -378,13 +377,9 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 						return;
 					}
 
-					if ($treat_null_as_unset) {
-						$myData = array_filter($this->_data, function ($val) {
-							return !is_null($val);
-						});
-					} else {
-						$myData = $this->_data;
-					}
+					$myData = array_filter($this->_data, function ($val) {
+						return !is_null($val);
+					});
 
 					//podemos quitar los que ya estén en el container
 					$not_data = array_diff_key($originalData, $myData);
