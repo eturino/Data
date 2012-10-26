@@ -12,7 +12,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
 	const LOG_CLASS = 'EtuDev_Data_Log';
 
-	static public function log($caller, $message, $level, $module = NULL) {
+	static public function log($caller, $message, $level, $module = null) {
 		$logger = static::LOG_CLASS;
 		if ($logger) {
 			return $logger::log($caller, $message, $level, $module);
@@ -65,6 +65,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		}
 
 		unset(self::$_observers[$class]);
+
 		return true;
 	}
 
@@ -191,6 +192,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 */
 	public function _getConstant($name) {
 		$r = new ReflectionObject($this);
+
 		return $r->hasConstant($name) ? $r->getConstant($name) : null;
 	}
 
@@ -199,6 +201,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		if (!$this->_useColumnNameTransformation) {
 			return $columnName;
 		}
+
 		return $this->_calculateTransformedColumn($columnName);
 	}
 
@@ -252,6 +255,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 */
 	public function setFromArray(array $originalData) {
 		$this->setValuesFromOriginalData($originalData);
+
 		return $this;
 	}
 
@@ -359,21 +363,34 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	 * foreach element in the originalData, we call $this->$k = $v, ONLY if it is not already set
 	 *
 	 * @param array|Traversable $originalData
+	 * @param bool              $treat_null_as_unset
 	 *
 	 * @uses _set()
 	 * @throws Exception
 	 */
-	public function setValuesOnlyIfNotSetted($originalData) {
+	public function setValuesOnlyIfNotSetted($originalData, $treat_null_as_unset = false) {
 		if ($originalData) {
 			try {
 				if (is_array($originalData) && $originalData) {
 					if (!$this->_data) {
 						$this->setValuesFromOriginalData($originalData);
+
 						return;
 					}
+
+					if ($treat_null_as_unset) {
+						$myData = array_filter($this->_data, function ($val) {
+							return !is_null($val);
+						});
+					} else {
+						$myData = $this->_data;
+					}
+
 					//podemos quitar los que ya estén en el container
-					$not_data = array_diff_key($originalData, $this->_data);
+					$not_data = array_diff_key($originalData, $myData);
+
 					$this->setValuesFromOriginalData($not_data);
+
 					return;
 				} else {
 					foreach ($originalData as $k => $v) {
@@ -405,15 +422,17 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 				if (is_array($originalData) && $originalData) {
 					if (!$this->_data) {
 						$this->setValuesFromOriginalData($originalData);
+
 						return true;
 					}
 					//podemos quitar los que ya estén en el container (salvo null)
-					$data     = array_filter($this->_data, function($v) {
+					$data     = array_filter($this->_data, function ($v) {
 						return !is_null($v);
 					});
 					$not_data = array_diff_key($originalData, $data);
 
 					$this->setValuesFromOriginalData($not_data);
+
 					return true;
 				} else {
 					foreach ($originalData as $k => $v) {
@@ -421,6 +440,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 							$this->_set($k, $v);
 						}
 					}
+
 					return true;
 				}
 			} catch (Exception $e) {
@@ -543,6 +563,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		if (!$this->_row_columns && $this->getTable()) {
 			$this->_row_columns = $this->getTable()->info(Zend_Db_Table_Abstract::COLS);
 		}
+
 		return $this->_row_columns;
 	}
 
@@ -560,6 +581,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		if ($table == null) {
 			$this->_table     = null;
 			$this->_connected = false;
+
 			return false;
 		}
 
@@ -586,6 +608,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 		}
 
 		$this->_connected = true;
+
 		return true;
 	}
 
@@ -752,6 +775,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 					$o[$k] = $v;
 				}
 			}
+
 			return $o;
 		} else {
 			return $st;
