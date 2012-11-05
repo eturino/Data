@@ -332,6 +332,20 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		return $s;
 	}
 
+	/**
+	 * select con "SELECT count(1) FROM thistable"
+	 *
+	 * @param bool $withFromPart por defecto SI queremos el from
+	 *
+	 * @return Zend_Db_Table_Select
+	 */
+	public function selectForCount($withFromPart = self::SELECT_WITH_FROM_PART){
+		$s = $this->select($withFromPart);
+		$s->reset(Zend_Db_Table::COLUMNS);
+		$s->columns('count(1)');
+		return $s;
+	}
+
 	public function save($entity) {
 		if ($entity instanceof Zend_Db_Table_Row_Abstract) {
 			return $entity->save();
