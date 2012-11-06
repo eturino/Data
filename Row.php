@@ -54,12 +54,14 @@ class EtuDev_Data_Row extends EtuDev_Data_ObservableRow implements EtuDev_Data_H
 	 */
 	public function _setDefaultDataWhenNull() {
 		$this->setValuesOnlyIfNull($this->_getDefaultData());
+
 		return $this;
 	}
 
 	protected function _insert() {
 		$this->_setDefaultDataWhenNull();
 		$this->calculateBeforeModify();
+
 		return parent::_insert();
 	}
 
@@ -69,11 +71,23 @@ class EtuDev_Data_Row extends EtuDev_Data_ObservableRow implements EtuDev_Data_H
 
 	protected function calculateBeforeModify() {
 		foreach ($this->_getters as $k => $gt) {
-			$this->_setDirect($k, $this->$gt());
-			$this->addModifiedKeyIfNeeded($k);
+			if ($this->_isGetterBeforeModify($k)) {
+				$this->_setDirect($k, $this->$gt());
+				$this->addModifiedKeyIfNeeded($k);
+			}
 		}
 	}
 
+	/**
+	 * to be extended: check if attribute can be used in calculateBeforeModify() or has to be ignored
+	 *
+	 * @param string $attribute
+	 *
+	 * @return bool if true it is used, if false ignored
+	 */
+	protected function _isGetterBeforeModify($attribute) {
+		return true;
+	}
 
 	/**
 	 * @var array con el highlight data
@@ -92,12 +106,14 @@ class EtuDev_Data_Row extends EtuDev_Data_ObservableRow implements EtuDev_Data_H
 		}
 
 		$this->_highlightData = $a;
+
 		return $this;
 	}
 
 
 	public function isHighlighted($origkey) {
 		$key = $this->getDefinedAlias($origkey);
+
 		return $this->_isHighlighted($key);
 	}
 
@@ -107,6 +123,7 @@ class EtuDev_Data_Row extends EtuDev_Data_ObservableRow implements EtuDev_Data_H
 
 	public function getDirectHighlighted($origkey) {
 		$key = $this->getDefinedAlias($origkey);
+
 		return $this->_getDirectFromHighlightedData($key);
 	}
 
