@@ -10,9 +10,10 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	const LEVEL_ALL              = '';
 	const TO_ARRAY_LEVEL_DEFAULT = self::LEVEL_ALL;
 
-	const LOG_CLASS = 'EtuDev_Data_Log';
+	const LOG_CLASS = 'EtuDev_Util_Log';
 
 	static public function log($caller, $message, $level, $module = null) {
+		/** @var $logger EtuDev_Util_Log */
 		$logger = static::LOG_CLASS;
 		if ($logger) {
 			return $logger::log($caller, $message, $level, $module);

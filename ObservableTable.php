@@ -18,9 +18,10 @@
  */
 class EtuDev_Data_ObservableTable extends Zend_Db_Table_Abstract {
 
-	const LOG_CLASS = 'EtuDev_Data_Log';
+	const LOG_CLASS = 'EtuDev_Util_Log';
 
-	static public function log($caller, $message, $level, $module = NULL) {
+	static public function log($caller, $message, $level, $module = null) {
+		/** @var $logger EtuDev_Util_Log */
 		$logger = static::LOG_CLASS;
 		if ($logger) {
 			return $logger::log($caller, $message, $level, $module);
