@@ -284,6 +284,32 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 
 	}
 
+	/**
+	 * @param string  $column_name
+	 * @param null|array|string $where
+	 * @param null|array|string $order
+	 * @param null|int $offset
+	 *
+	 * @return string|null the looked column in the first given row
+	 */
+	public function getOneCol($column_name, $where = null, $order = null, $offset = null) {
+		$a = $this->getCol($column_name, $where, $order, 1, $offset);
+		if ($a) {
+			return current($a);
+		}
+
+		return null;
+	}
+
+	/**
+	 * @param string  $column_name
+	 * @param null|array|string $where
+	 * @param null|array|string $order
+	 * @param null|int $count
+	 * @param null|int $offset
+	 *
+	 * @return array of the looked column for all the rows (using where, order, count and offset)
+	 */
 	public function getCol($column_name, $where = null, $order = null, $count = null, $offset = null) {
 		if ($where instanceof Zend_Db_Select) {
 			$s = $where;
@@ -339,7 +365,7 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	 *
 	 * @return Zend_Db_Table_Select
 	 */
-	public function selectForCount($withFromPart = self::SELECT_WITH_FROM_PART){
+	public function selectForCount($withFromPart = self::SELECT_WITH_FROM_PART) {
 		$s = $this->select($withFromPart);
 		$s->reset(Zend_Db_Table::COLUMNS);
 		$s->columns('count(1)');
