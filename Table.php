@@ -119,6 +119,46 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		return in_array($column, $this->getValidColumns());
 	}
 
+	/**
+	 * Fetches one row in an array, not an object of type rowClass,
+	 * or returns null if no row matches the specified criteria.
+	 *
+	 * @param array $columns the name of the columns to retrieve
+	 * @param string|array|Zend_Db_Table_Select $where  OPTIONAL An SQL WHERE clause or Zend_Db_Table_Select object.
+	 * @param string|array                      $order  OPTIONAL An SQL ORDER clause.
+	 * @param int                               $offset OPTIONAL An SQL OFFSET value.
+	 *
+	 * @return array|null The row results per the
+	 *     Zend_Db_Adapter fetch mode, or null if no row found.
+	 */
+	public function fetchRowColumnsAsArray($columns, $where = null, $order = null, $offset = null) {
+		if (!($where instanceof Zend_Db_Table_Select)) {
+			$select = $this->select(static::SELECT_WITH_FROM_PART);
+
+			if ($where !== null) {
+				$this->_where($select, $where);
+			}
+
+			if ($order !== null) {
+				$this->_order($select, $order);
+			}
+
+			$select->limit(1, ((is_numeric($offset)) ? (int) $offset : null));
+
+		} else {
+			$select = $where->limit(1, $where->getPart(Zend_Db_Select::LIMIT_OFFSET));
+		}
+
+		$select->reset(Zend_Db_Table_Abstract::COLUMNS);
+		$select->columns($columns);
+
+		$rows = $this->_fetch($select);
+
+		if (count($rows) == 0) {
+			return null;
+		}
+		return current($rows);
+	}
 
 	/**
 	 * Fetches one row in an array, not an object of type rowClass,
@@ -133,7 +173,7 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	 */
 	public function fetchRowAsArray($where = null, $order = null, $offset = null) {
 		if (!($where instanceof Zend_Db_Table_Select)) {
-			$select = $this->select();
+			$select = $this->select(static::SELECT_WITH_FROM_PART);
 
 			if ($where !== null) {
 				$this->_where($select, $where);
