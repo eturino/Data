@@ -42,8 +42,8 @@ class EtuDev_Data_Row extends EtuDev_Data_ObservableRow implements EtuDev_Data_H
 			$c->setFromArray($data->toArrayFull());
 		} elseif (($data instanceof EtuDev_Interfaces_ToArrayAble) || method_exists($data, 'toArray')) {
 			/** @var $data EtuDev_Interfaces_ToArrayAble */
-			$c->setFromArray($data->toArray());
 			$c = $table->createRow();
+			$c->setFromArray($data->toArray());
 		}
 
 		return $c ? : $data;
