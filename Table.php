@@ -123,7 +123,7 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	 * Fetches one row in an array, not an object of type rowClass,
 	 * or returns null if no row matches the specified criteria.
 	 *
-	 * @param array $columns the name of the columns to retrieve
+	 * @param array                             $columns the name of the columns to retrieve
 	 * @param string|array|Zend_Db_Table_Select $where  OPTIONAL An SQL WHERE clause or Zend_Db_Table_Select object.
 	 * @param string|array                      $order  OPTIONAL An SQL ORDER clause.
 	 * @param int                               $offset OPTIONAL An SQL OFFSET value.
@@ -159,6 +159,45 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		}
 		return current($rows);
 	}
+
+
+	/**
+	 * Fetches all rows.
+	 *
+	 * Honors the Zend_Db_Adapter fetch mode.
+	 *
+	 * @param string|array|Zend_Db_Table_Select $where  OPTIONAL An SQL WHERE clause or Zend_Db_Table_Select object.
+	 * @param string|array                      $order  OPTIONAL An SQL ORDER clause.
+	 * @param int                               $count  OPTIONAL An SQL LIMIT count.
+	 * @param int                               $offset OPTIONAL An SQL LIMIT offset.
+	 *
+	 * @return array of Arrays The row results (array)
+	 */
+	public function fetchAllAsArrays($where = null, $order = null, $count = null, $offset = null) {
+		if (!($where instanceof Zend_Db_Table_Select)) {
+			$select = $this->select();
+
+			if ($where !== null) {
+				$this->_where($select, $where);
+			}
+
+			if ($order !== null) {
+				$this->_order($select, $order);
+			}
+
+			if ($count !== null || $offset !== null) {
+				$select->limit($count, $offset);
+			}
+
+		} else {
+			$select = $where;
+		}
+
+		$rows = $this->_fetch($select);
+
+		return $rows;
+	}
+
 
 	/**
 	 * Fetches one row in an array, not an object of type rowClass,
@@ -325,10 +364,10 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	}
 
 	/**
-	 * @param string  $column_name
+	 * @param string            $column_name
 	 * @param null|array|string $where
 	 * @param null|array|string $order
-	 * @param null|int $offset
+	 * @param null|int          $offset
 	 *
 	 * @return string|null the looked column in the first given row
 	 */
@@ -342,11 +381,11 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	}
 
 	/**
-	 * @param string  $column_name
+	 * @param string            $column_name
 	 * @param null|array|string $where
 	 * @param null|array|string $order
-	 * @param null|int $count
-	 * @param null|int $offset
+	 * @param null|int          $count
+	 * @param null|int          $offset
 	 *
 	 * @return array of the looked column for all the rows (using where, order, count and offset)
 	 */
