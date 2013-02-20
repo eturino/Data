@@ -1,6 +1,6 @@
 <?php
 /**
- * @method EtuDev_Data_Rowset fetchAll($where = null, $order = null, $count = null, $offset = null)
+ *
  */
 abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 
@@ -469,5 +469,49 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Fetches all rows.
+	 *
+	 * Honors the Zend_Db_Adapter fetch mode.
+	 *
+	 * @param string|array|Zend_Db_Table_Select|Zend_Db_Statement $where  OPTIONAL An SQL WHERE clause or Zend_Db_Table_Select object.
+	 * @param string|array                                        $order  OPTIONAL An SQL ORDER clause. (if where is statement, it is ignored)
+	 * @param int                                                 $count  OPTIONAL An SQL LIMIT count. (if where is statement, it is ignored)
+	 * @param int                                                 $offset OPTIONAL An SQL LIMIT offset. (if where is statement, it is ignored)
+	 *
+	 * @return EtuDev_Data_Rowset The row results per the Zend_Db_Adapter fetch mode.
+	 */
+	public function fetchAll($where = null, $order = null, $count = null, $offset = null) {
+		if ($where instanceof Zend_Db_Statement) {
+
+			$rows = $where->fetchAll(Zend_Db::FETCH_ASSOC);
+
+			$data = array('table'    => $this,
+						  'data'     => $rows,
+//						  'readOnly' => $select->isReadOnly(),
+						  'rowClass' => $this->getRowClass(),
+						  'stored'   => true);
+
+			$rowsetClass = $this->getRowsetClass();
+			if (!class_exists($rowsetClass)) {
+				require_once 'Zend/Loader.php';
+				Zend_Loader::loadClass($rowsetClass);
+			}
+			return new $rowsetClass($data);
+		}
+
+		return parent::fetchAll($where, $order, $count, $offset);
+	}
+
+	/**
+	 * @param string $sql
+	 * @param array  $bind
+	 *
+	 * @return Zend_Db_Statement_Interface
+	 */
+	public function getQueryFromSQL($sql, $bind = array()) {
+		return $this->getAdapter()->query($sql, $bind);
 	}
 }
