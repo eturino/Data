@@ -427,31 +427,48 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	const SELECT_WITHOUT_FROM_PART = false;
 
 	/**
-	 * por defecto QUITAMOS EL INTEGRITY CHECK
-	 *
-	 * @param bool $withFromPart
+	 * ONLY MYSQL
 	 *
 	 * @return Zend_Db_Table_Select
 	 */
-	public function select($withFromPart = self::SELECT_WITHOUT_FROM_PART) {
+	public function selectSqlCalcFoundRows() {
+		return $this->select(self::SELECT_WITH_FROM_PART, true);
+	}
+
+	/**
+	 * por defecto QUITAMOS EL INTEGRITY CHECK
+	 *
+	 * @param bool $withFromPart
+	 * @param bool $sqlCalcFoundRows if $withFromPart is self::SELECT_WITH_FROM_PART and this one too then prepend ˝SQL_CALC_FOUND_ROWS˝ to the * columns wildcard (ONLY MYSQL)
+	 *
+	 * @return Zend_Db_Table_Select
+	 */
+	public function select($withFromPart = self::SELECT_WITHOUT_FROM_PART, $sqlCalcFoundRows = false) {
 		$s = parent::select();
 		if ($s) {
 			$s->setIntegrityCheck(false);
 		}
-		if ($withFromPart) {
-			$s->from($this->info(self::NAME), Zend_Db_Table_Select::SQL_WILDCARD, $this->info(self::SCHEMA));
+		if ($withFromPart == self::SELECT_WITH_FROM_PART) {
+			if ($sqlCalcFoundRows) {
+				$cols = new Zend_Db_Expr('SQL_CALC_FOUND_ROWS ' . Zend_Db_Table_Select::SQL_WILDCARD);
+			} else {
+				$cols = Zend_Db_Table_Select::SQL_WILDCARD;
+			}
+			$s->from($this->info(self::NAME), $cols, $this->info(self::SCHEMA));
 		}
 		return $s;
 	}
 
 	/**
-	 * select con "SELECT count(1) FROM thistable"
+	 * select con "SELECT count(1) FROM thistable" or "SELECT SQL_CALC_FOUND_ROWS count(1) FROM thistable"
 	 *
 	 * @param bool $withFromPart por defecto SI queremos el from
+	 * @param bool $sqlCalcFoundRows if $withFromPart is self::SELECT_WITH_FROM_PART and this one too then prepend ˝SQL_CALC_FOUND_ROWS˝ to the * columns wildcard
+	 *
 	 *
 	 * @return Zend_Db_Table_Select
 	 */
-	public function selectForCount($withFromPart = self::SELECT_WITH_FROM_PART) {
+	public function selectForCount($withFromPart = self::SELECT_WITH_FROM_PART, $sqlCalcFoundRows = false) {
 		$s = $this->select($withFromPart);
 		$s->reset(Zend_Db_Table::COLUMNS);
 		$s->columns('count(1)');
@@ -513,5 +530,22 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 	 */
 	public function getQueryFromSQL($sql, $bind = array()) {
 		return $this->getAdapter()->query($sql, $bind);
+	}
+
+	/**
+	 * get the found rows of previously query that used SQL_CALC_FOUND_ROWS
+	 *
+	 * ALERT! MySQL ONLY!!
+	 * uses FOUND_ROWS()
+	 *
+	 * @return int|null
+	 */
+	public function getFoundRows() {
+		$db  = $this->getAdapter();
+		$res = $db->fetchOne($db->select()->from(null, new Zend_Db_Expr('FOUND_ROWS()')));
+		if (is_numeric($res)) {
+			$res = (int) $res;
+		}
+		return $res;
 	}
 }
