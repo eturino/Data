@@ -46,11 +46,12 @@ class EtuDev_Data_PseudoArray extends EtuDev_PseudoArray_Object implements EtuDe
 
 	/**
 	 * @param array|SolrObject|Traversable $data
+	 *
 	 * @return EtuDev_Data_PseudoArray
 	 */
-	public function setHighlightData($data){
+	public function setHighlightData($data) {
 		$a = array();
-		foreach($data as $field => $value) {
+		foreach ($data as $field => $value) {
 			$a[$field] = $value[0];
 		}
 
@@ -59,25 +60,25 @@ class EtuDev_Data_PseudoArray extends EtuDev_PseudoArray_Object implements EtuDe
 	}
 
 
-	public function isHighlighted($origkey){
+	public function isHighlighted($origkey) {
 		$key = $this->getDefinedAlias($origkey);
 		return $this->_isHighlighted($key);
 	}
 
-	protected function _isHighlighted($key){
+	protected function _isHighlighted($key) {
 		return @isset($this->_highlightData[$key]);
 	}
 
-	public function getDirectHighlighted($origkey){
+	public function getDirectHighlighted($origkey) {
 		$key = $this->getDefinedAlias($origkey);
 		return $this->_getDirectFromHighlightedData($key);
 	}
 
-	protected function _getDirectFromHighlightedData($key){
+	protected function _getDirectFromHighlightedData($key) {
 		return @$this->_highlightData[$key];
 	}
 
-	static public function getIdField(){
+	static public function getIdField() {
 		return 'id';
 	}
 

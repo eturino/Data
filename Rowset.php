@@ -8,8 +8,8 @@ class EtuDev_Data_Rowset extends Zend_Db_Table_Rowset {
 	public function __construct(array $config) {
 		parent::__construct($config);
 		if ($this->_data) {
-			$this->firstKey = key(array_slice($this->_data, 0, 1, TRUE));
-			$this->endKey   = key(array_slice($this->_data, -1, 1, TRUE));
+			$this->firstKey = key(array_slice($this->_data, 0, 1, true));
+			$this->endKey   = key(array_slice($this->_data, -1, 1, true));
 		}
 	}
 
