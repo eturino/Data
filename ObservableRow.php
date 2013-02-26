@@ -779,4 +779,7 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 	}
 
 
+	public function getArrayOnlyRowData() {
+		return array_intersect_key($this->_data, array_flip($this->getRowColumns()));
+	}
 }
