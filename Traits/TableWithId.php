@@ -7,7 +7,7 @@ trait EtuDev_Data_Traits_TableWithId {
 	}
 
 	public function getRowById($id) {
-		return $this->fetchRow(array('id = ?' => $id));
+		return is_null($id) ? null : $this->fetchRow(array('id = ?' => $id));
 	}
 
 	public function delete($where) {
