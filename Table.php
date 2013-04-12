@@ -522,6 +522,41 @@ abstract class EtuDev_Data_Table extends EtuDev_Data_ObservableTable {
 		return parent::fetchAll($where, $order, $count, $offset);
 	}
 
+
+	/**
+	 * Fetches all rows with SQL_CALC_FOUND_ROWS option.
+	 *
+	 * Honors the Zend_Db_Adapter fetch mode.
+	 *
+	 * @param string|array $where  OPTIONAL An SQL WHERE clause (if it is a Zend_Db_Table_Select object then it will not use SQL_CALC_FOUND_ROWS and use fetchAll() instead).
+	 * @param string|array $order  OPTIONAL An SQL ORDER clause. (if where is statement, it is ignored)
+	 * @param int          $count  OPTIONAL An SQL LIMIT count. (if where is statement, it is ignored)
+	 * @param int          $offset OPTIONAL An SQL LIMIT offset. (if where is statement, it is ignored)
+	 *
+	 * @return EtuDev_Data_Rowset The row results per the Zend_Db_Adapter fetch mode.
+	 */
+	public function fetchAllSqlCalcFoundRows($where = null, $order = null, $count = null, $offset = null) {
+		if ($where instanceof Zend_Db_Statement) {
+			return $this->fetchAll($where, $order, $count, $offset);
+		}
+
+		$select = $this->selectSqlCalcFoundRows();
+
+		if ($where !== null) {
+			$this->_where($select, $where);
+		}
+
+		if ($order !== null) {
+			$this->_order($select, $order);
+		}
+
+		if ($count !== null || $offset !== null) {
+			$select->limit($count, $offset);
+		}
+
+		return parent::fetchAll($select);
+	}
+
 	/**
 	 * @param string $sql
 	 * @param array  $bind
