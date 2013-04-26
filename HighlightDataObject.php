@@ -1,15 +1,16 @@
 <?php
 
-interface EtuDev_Data_HighlightDataObject {
+interface EtuDev_Data_HighlightDataObject
+{
 
-	public function setHighlightData($data);
-
-
-	public function isHighlighted($origkey);
+    public function setHighlightData($data);
 
 
-	public function getDirectHighlighted($origkey);
+    public function isHighlighted($origkey);
 
-	static public function getIdField();
+
+    public function getDirectHighlighted($origkey);
+
+    static public function getIdField();
 
 }

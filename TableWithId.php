@@ -1,7 +1,8 @@
 <?php
 
-interface EtuDev_Data_TableWithId {
+interface EtuDev_Data_TableWithId
+{
 
-	public function getRowById($id);
+    public function getRowById($id);
 
 }
