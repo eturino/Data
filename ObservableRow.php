@@ -13,6 +13,27 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
     const LOG_CLASS = 'EtuDev_Util_Log';
 
+    protected $_failIfColumnsNotInTable = false;
+
+    /**
+     * @param bool $v
+     *
+     * @return bool
+     */
+    public function setFailIfColumnsNotInTable($v = true)
+    {
+        $this->_failIfColumnsNotInTable = (bool) $v;
+        return $this->_failIfColumnsNotInTable;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isFailIfColumnsNotInTable()
+    {
+        return $this->_failIfColumnsNotInTable;
+    }
+
     static public function log($caller, $message, $level, $module = null)
     {
         /** @var $logger EtuDev_Util_Log */
@@ -641,15 +662,20 @@ class EtuDev_Data_ObservableRow extends Zend_Db_Table_Row_Abstract implements Et
 
         $info = $this->_table->info();
 
-        if ($this->_cleanData && $info['cols'] != array_keys($this->_cleanData)) {
+        //fail ONLY if stablished as such, if not, we allow extra data that are not in columns.
+        if ($this->_failIfColumnsNotInTable && $this->_cleanData && $info['cols'] != array_keys($this->_cleanData)) {
             require_once 'Zend/Db/Table/Row/Exception.php';
             throw new Zend_Db_Table_Row_Exception('The specified Table does not have the same columns as the Row');
         }
 
-        if (!array_intersect((array) $this->_primary, $info['primary']) == (array) $this->_primary) {
+        //if not the same primary key, fail
+        if ($this->_primary && !array_intersect((array) $this->_primary, $info['primary']) == (array) $this->_primary) {
 
             require_once 'Zend/Db/Table/Row/Exception.php';
             throw new Zend_Db_Table_Row_Exception("The specified Table '$tableClass' does not have the same primary key as the Row");
+
+        } elseif (!$this->_primary) { // if there is no primary key, use the table's
+            $this->_primary = (array) $info['primary'];
         }
 
         $this->_connected = true;
