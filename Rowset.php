@@ -70,6 +70,7 @@ class EtuDev_Data_Rowset extends Zend_Db_Table_Rowset
                 $this->doAppendRowData($v->toArray());
             }
         }
+        $this->refreshKeys();
         $this->refreshCount();
         $this->refreshRows();
     }
@@ -77,6 +78,7 @@ class EtuDev_Data_Rowset extends Zend_Db_Table_Rowset
     public function appendRow(Zend_Db_Table_Row $data)
     {
         $this->doAppendRowData($data->toArray());
+        $this->refreshKeys();
         $this->refreshCount();
         $this->refreshRows();
     }
@@ -84,6 +86,7 @@ class EtuDev_Data_Rowset extends Zend_Db_Table_Rowset
     public function appendRowData(array $data)
     {
         $this->doAppendRowData($data);
+        $this->refreshKeys();
         $this->refreshCount();
         $this->refreshRows();
     }
