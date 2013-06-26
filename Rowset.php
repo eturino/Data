@@ -59,6 +59,17 @@ class EtuDev_Data_Rowset extends Zend_Db_Table_Rowset
     }
 
     /**
+     * @param mixed $total
+     *
+     * @return EtuDev_Data_Rowset
+     */
+    public function setTotal($total)
+    {
+        $this->total = $total;
+        return $this;
+    }
+
+    /**
      * @param array|Zend_Db_Table_Rowset $list_rows
      */
     public function appendRows($list_rows)
